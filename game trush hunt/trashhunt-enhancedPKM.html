@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Trash Hunt — Bali</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css"/>
+<link rel="stylesheet" href="trashhunt.css">
+<script src="trush.js"></script>
+<script>
+// Load Leaflet with fallback CDNs
+(function(){
+  function loadLeaflet(urls, idx){
+    if(idx>=urls.length){console.error('All Leaflet CDNs failed');return;}
+    var s=document.createElement('script');
+    s.src=urls[idx];
+    s.onload=function(){console.log('Leaflet loaded from',urls[idx]);window._leafletReady=true;if(window._onLeafletReady)window._onLeafletReady();};
+    s.onerror=function(){console.warn('Failed:',urls[idx]);loadLeaflet(urls,idx+1);};
+    document.head.appendChild(s);
+  }
+  loadLeaflet([
+    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'
+  ],0);
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+<div id="app"><div class="frame" id="frame">
+
+<!-- SPLASH -->
+<div id="s-splash" class="screen active">
+  <span class="spl-leaf">🍃</span><span class="spl-leaf">🌿</span>
+  <div style="display:flex;flex-direction:column;align-items:center">
+    <div class="spl-logo-circle">
+      <svg width="106" height="106" viewBox="0 0 110 110">
+        <rect x="22" y="38" width="66" height="58" rx="8" fill="#B0BEC5" stroke="#90A4AE" stroke-width="2"/>
+        <rect x="18" y="32" width="74" height="12" rx="6" fill="#90A4AE"/>
+        <path d="M30 56L30 68L46 68" stroke="#00E676" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M80 56L80 68L64 68" stroke="#00E676" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <circle cx="46" cy="68" r="3.5" fill="#00E676"/><circle cx="64" cy="68" r="3.5" fill="#00E676"/>
+        <polygon points="55,42 67,49 67,62 55,68 43,62 43,49" fill="#1A1A2E" stroke="#2A2A3E" stroke-width="1"/>
+        <circle cx="55" cy="55" r="10" fill="url(#cg1)"/>
+        <circle cx="55" cy="55" r="6" fill="url(#cg2)"/>
+        <circle cx="55" cy="55" r="3" fill="#fff" opacity=".85"/>
+        <circle cx="59" cy="51" r="2" fill="#fff" opacity=".6"/>
+        <ellipse cx="55" cy="32" rx="28" ry="6" fill="#8D6E63"/>
+        <path d="M27 32Q30 16 55 18Q80 16 83 32" fill="#6D4C41"/>
+        <path d="M74 22Q80 10 88 8Q84 16 78 20Z" fill="#E0E0E0" opacity=".9"/>
+        <defs>
+          <radialGradient id="cg1" cx="40%" cy="40%" r="60%"><stop offset="0%" stop-color="#7C4DFF"/><stop offset="50%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#00BFA5"/></radialGradient>
+          <radialGradient id="cg2" cx="40%" cy="40%" r="60%"><stop offset="0%" stop-color="#EA80FC"/><stop offset="100%" stop-color="#7C4DFF"/></radialGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="spl-title">TRASH HUNT</div>
+    <div class="spl-bar"><div class="spl-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- SIGN IN -->
+<div id="s-signin" class="screen">
+  <div class="si-sky"></div>
+  <svg class="si-buildings" viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+    <rect x="0" y="50" width="48" height="120" fill="#1C3560" rx="3"/>
+    <rect x="7" y="32" width="32" height="22" fill="#1C3560" rx="2"/>
+    <rect x="58" y="68" width="68" height="102" fill="#172E52" rx="3"/>
+    <rect x="76" y="48" width="32" height="24" fill="#172E52" rx="2"/>
+    <rect x="136" y="38" width="40" height="132" fill="#142846" rx="3"/>
+    <rect x="144" y="22" width="26" height="20" fill="#142846" rx="2"/>
+    <rect x="186" y="60" width="58" height="110" fill="#1C3560" rx="3"/>
+    <rect x="254" y="44" width="44" height="126" fill="#172E52" rx="3"/>
+    <rect x="308" y="62" width="92" height="108" fill="#142846" rx="3"/>
+    <rect x="13" y="65" width="7" height="7" fill="#FFD54F" opacity=".6" rx="1"/><rect x="26" y="65" width="7" height="7" fill="#FFD54F" opacity=".35" rx="1"/>
+    <rect x="68" y="80" width="9" height="9" fill="#FFD54F" opacity=".5" rx="1"/><rect x="84" y="80" width="9" height="9" fill="#FFD54F" opacity=".7" rx="1"/>
+    <rect x="144" y="55" width="8" height="8" fill="#FFD54F" opacity=".8" rx="1"/><rect x="158" y="55" width="8" height="8" fill="#FFD54F" opacity=".4" rx="1"/>
+    <rect x="196" y="74" width="9" height="9" fill="#FFD54F" opacity=".55" rx="1"/><rect x="212" y="74" width="9" height="9" fill="#FFD54F" opacity=".3" rx="1"/>
+    <rect x="263" y="58" width="8" height="8" fill="#FFD54F" opacity=".65" rx="1"/><rect x="278" y="58" width="8" height="8" fill="#FFD54F" opacity=".4" rx="1"/>
+    <rect x="318" y="78" width="10" height="10" fill="#FFD54F" opacity=".4" rx="1"/><rect x="336" y="78" width="10" height="10" fill="#FFD54F" opacity=".6" rx="1"/>
+    <circle cx="52" cy="170" r="14" fill="#2B5226"/><circle cx="136" cy="170" r="12" fill="#2B5226"/><circle cx="250" cy="170" r="16" fill="#2B5226"/><circle cx="386" cy="170" r="13" fill="#2B5226"/>
+    <rect y="168" width="400" height="3" fill="#C0A040" opacity=".5"/>
+  </svg>
+  <div class="si-content">
+    <div class="si-logo-row"><span class="si-logo-ico">🗑️</span><span class="si-title-txt">TRASH HUNT</span></div>
+    <div class="si-panel">
+      <div class="si-h2">LOGIN</div>
+      <div class="fgrp">
+        <label>Username</label>
+        <div class="finput"><span class="fi-ico">👤</span><input type="text" placeholder="Ketik username kamu"></div>
+      </div>
+      <div class="fgrp">
+        <label>Password</label>
+        <div class="finput"><span class="fi-ico">🔒</span><input type="password" placeholder="Ketik password kamu"></div>
+        <div class="forgot-link">lupa password?</div>
+      </div>
+      <button class="btn-login" onclick="go('home')">LOGIN</button>
+      <div class="si-or">atau Sign in dengan</div>
+      <div class="si-socials">
+        <div class="si-soc" onclick="go('home')"><svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#1877F2"/><path d="M18.5 14h-3v7.5h-3V14h-2v-3h2v-1.8c0-2.1 1.2-3.2 3.1-3.2.9 0 1.9.1 2.9.2v3h-1.8c-.9 0-1.1.4-1.1.9V11H19l-.5 3z" fill="white"/></svg></div>
+        <div class="si-soc" onclick="go('home')"><svg width="28" height="28" viewBox="0 0 28 28"><path d="M14 6.5c4.2 0 6.5 2.7 6.5 2.7l-2 2s-1.2-1.4-4.5-1.4c-3.4 0-6 2.8-6 6.2s2.6 6.2 6 6.2c3.1 0 5-1.8 5.5-4.3H14v-3h8.5V16c0 5.4-3.6 8.5-8.5 8.5C8.2 24.5 4 20.3 4 15s4.2-8.5 10-8.5z" fill="#4285F4"/></svg></div>
+      </div>
+      <div class="si-signup">Belum punya akun? <a onclick="go('home')">Sign up</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME MAP -->
+<div id="s-home" class="screen">
+  <div class="hm-topbar">
+    <div class="chip">📍 <span id="loc-txt">Denpasar</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div onclick="openNotif()" style="position:relative;cursor:pointer;background:rgba(255,255,255,.2);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <div id="home-notif-badge" style="position:absolute;top:-2px;right:-2px;background:#FF4444;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:900;min-width:14px;text-align:center">3</div>
+      </div>
+      <div class="chip coin-chip"><div class="coin-ball">🪙</div><span id="coins-val">255</span></div>
+    </div>
+  </div>
+  <div class="hm-tr">
+    <div class="compass-fab" onclick="recenterMap()">🧭</div>
+    <div class="dq-fab" onclick="toggleDQ()"><div class="di">📋</div><div class="dl" id="dq-fab-lbl">Daily Quest</div></div>
+  </div>
+  <div class="map-area">
+    <div id="game-map"></div>
+    <!-- Map legend -->
+    <div class="map-legend">
+      <div class="legend-row"><span style="width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,#EF5350,#B71C1C);display:inline-block"></span>Sampah aktif</div>
+      <div class="legend-row"><span style="width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,#43A047,#1B5E20);display:inline-block"></span>Sudah bersih</div>
+      <div class="legend-row"><span style="font-size:14px">😎</span>Posisimu</div>
+    </div>
+  </div>
+  <div class="dq-popup" id="dq-popup">
+    <div style="font-size:13px;font-weight:900;color:#1A1030;margin-bottom:8px">🎯 Quest Hari Ini</div>
+    <div id="dq-popup-list"></div>
+    <button onclick="closeDQ();openQuest()" style="width:100%;margin-top:8px;padding:10px;background:linear-gradient(135deg,var(--pu3),var(--pu2));border:none;border-radius:22px;font-family:'Fredoka One',cursive;font-size:16px;color:#fff;cursor:pointer">Lihat Semua Quest →</button>
+  </div>
+  <div class="dq-bg" id="dq-bg" onclick="closeDQ()"></div>
+  <div class="ply-card"><div class="ply-av">🧑</div><div><div class="ply-nm">Ady Hunter</div><div class="ply-lv">Lv. 10</div></div></div>
+  <!-- Streak FAB -->
+  <div style="position:absolute;bottom:88px;left:16px;z-index:22;width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#FF8C00,#FF5500);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 5px 16px rgba(255,140,0,.4);cursor:pointer" onclick="openStreak()">
+    <span style="font-size:22px">🔥</span><span style="font-size:9px;font-weight:800;color:#fff">Streak</span>
+  </div>
+  <div class="forum-fab" onclick="go('forum')"><span>💬</span><span>Forum</span></div>
+  <div class="bnav">
+    <button class="nv on" onclick="navTap(this,'home')"><span class="ico">📍</span>Peta</button>
+    <button class="nv" onclick="navTap(this,'rank')"><span class="ico">🏆</span>Peringkat</button>
+    <div class="ncam-wrap"><button class="ncam-btn" onclick="goCam('camera')">📷</button></div>
+    <button class="nv" onclick="navTap(this,'toko')"><span class="ico">🛒</span>Toko</button>
+    <button class="nv" onclick="navTap(this,'profil')"><span class="ico">⚙️</span>Pengaturan</button>
+  </div>
+</div>
+
+<!-- CAMERA -->
+<div id="s-camera" class="screen">
+  <div class="cam-top">
+    <button class="cam-bk" onclick="stopCam();go('home')">←</button>
+    <div class="cam-htxt">Pastikan objek terlihat<br>dengan jelas!</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="cam-view">
+    <video id="vid-el" autoplay playsinline muted></video>
+    <svg class="cam-fake-bg" id="cam-fake1" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="sk1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#88CCEE"/><stop offset="65%" stop-color="#D8B870"/></linearGradient></defs>
+      <rect width="400" height="600" fill="url(#sk1)"/>
+      <rect x="0" y="68" width="78" height="200" fill="#8C6E54" opacity=".65"/><rect x="88" y="50" width="58" height="220" fill="#7C6044" opacity=".65"/>
+      <rect x="285" y="62" width="115" height="215" fill="#8C6E54" opacity=".6"/>
+      <rect y="262" width="400" height="15" fill="#A09070"/><rect y="272" width="400" height="328" fill="#8E7650"/>
+      <ellipse cx="148" cy="308" rx="56" ry="18" fill="#D0C8A0" opacity=".9"/>
+      <rect x="180" y="278" width="27" height="35" rx="4" fill="#F5C518"/>
+      <rect x="182" y="282" width="23" height="8" rx="2" fill="#E53935"/>
+      <text x="184" y="296" font-size="7" fill="#fff" font-weight="bold">MI</text>
+      <rect x="112" y="284" width="17" height="30" rx="6" fill="#E3F2FD" opacity=".85" stroke="#90CAF9" stroke-width="1"/>
+      <text x="348" y="208" font-size="24" opacity=".38">🏪</text>
+    </svg>
+  </div>
+  <div class="cam-bbar">
+    <div class="cam-thmb">📷</div>
+    <div class="shutter" onclick="shoot('trash')"></div>
+    <div class="cam-flip-btn" onclick="toast('🔄 Kamera diputar')">🔄</div>
+  </div>
+</div>
+
+<!-- CLEAN CAMERA -->
+<div id="s-clean-cam" class="screen">
+  <div class="cam-top">
+    <button class="cam-bk" onclick="go('action-choice')">←</button>
+    <div class="cam-htxt">Foto setelah dibersihkan</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="cam-view">
+    <video id="vid-el2" autoplay playsinline muted></video>
+    <svg class="cam-fake-bg" id="cam-fake2" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="sk2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#88CCEE"/><stop offset="65%" stop-color="#D0A860"/></linearGradient></defs>
+      <rect width="400" height="600" fill="url(#sk2)"/>
+      <rect y="262" width="400" height="15" fill="#A09070"/><rect y="272" width="400" height="328" fill="#9A8260"/>
+      <text x="168" y="360" font-size="38">🧹</text>
+      <text x="150" y="318" font-size="11" fill="rgba(255,255,255,.6)" font-family="Nunito,sans-serif" font-weight="700">Area sudah dibersihkan</text>
+    </svg>
+  </div>
+  <div class="cam-bbar">
+    <div class="cam-thmb">🧹</div>
+    <div class="shutter" onclick="shoot('clean')"></div>
+    <div class="cam-flip-btn" onclick="toast('🔄 Kamera diputar')">🔄</div>
+  </div>
+</div>
+
+<!-- UPLOAD PREVIEW -->
+<div id="s-upload" class="screen">
+  <div class="up-hdr"><button class="up-bk" onclick="go('camera')">←</button></div>
+  <div class="up-body">
+    <div class="up-photo-frame">
+      <img id="up-img" class="up-photo-img" src="" alt="">
+      <div class="up-mascot-pos">
+        <div style="position:relative;display:inline-block">
+          <div class="up-bubble">FOTO YANG<br>BAGUS!</div>
+          <span class="up-mascot-char">🧑‍🌿</span>
+        </div>
+      </div>
+    </div>
+    <div class="up-warn">Pastikan foto kamu<br>bukan hasil manipulasi atau AI</div>
+  </div>
+  <div class="up-btns">
+    <button class="btn-g" onclick="submitPhoto()">Upload & Scan AI 🤖</button>
+    <button class="btn-r" onclick="go('camera')">Ambil Ulang</button>
+  </div>
+</div>
+
+<!-- ACTION CHOICE -->
+<div id="s-action-choice" class="screen result-screen">
+  <div style="padding:13px 14px 8px;flex-shrink:0"><button class="up-bk" onclick="go('upload')">←</button></div>
+  <div class="result-wrap">
+    <div class="result-card green" style="flex:1">
+      <span class="rc-mascot">🧑‍🌿</span>
+      <div class="rc-txt">Foto kamu sudah kami terima,<br>silahkan pilih tindakan<br>untuk menambah poin.</div>
+    </div>
+  </div>
+  <div class="result-btns">
+    <button class="btn-pu solid" onclick="doReport()">laporkan &nbsp;<span style="color:#FFD700">+5 🪙</span></button>
+    <button class="btn-pu solid" onclick="go('clean-cam')">bersihkan langsung &nbsp;<span style="color:#FFD700">+15 🪙</span></button>
+  </div>
+</div>
+
+<!-- REJECTED -->
+<div id="s-rejected" class="screen result-screen">
+  <div style="padding:13px 14px 8px;flex-shrink:0"><button class="up-bk" onclick="go('camera')">←</button></div>
+  <div class="result-wrap">
+    <div class="result-card red" style="flex:1">
+      <span class="rc-mascot">😤</span>
+      <div class="rc-txt">Foto kamu belum<br>memenuhi syarat,<br>silahkan coba lagi.</div>
+    </div>
+  </div>
+  <div class="result-btns"><button class="btn-g" onclick="go('camera')">Ambil ulang</button></div>
+</div>
+
+<!-- REPORT OK -->
+<div id="s-report-ok" class="screen result-screen">
+  <div style="padding:13px 14px 8px;flex-shrink:0"><button class="up-bk" onclick="go('home')">←</button></div>
+  <div class="result-wrap">
+    <div class="result-card green" style="flex:1">
+      <span class="rc-mascot">🧑‍🌿</span>
+      <div class="rc-check">✅</div>
+      <div class="rc-txt">Laporan anda sudah kami terima.<br><br>Terima kasih sudah<br>ikut menjaga lingkungan!</div>
+    </div>
+  </div>
+  <div class="result-btns"><button class="btn-pu solid" onclick="finishReport()">kembali ke peta 🗺️</button></div>
+</div>
+
+<!-- CLEAN OK -->
+<div id="s-clean-ok" class="screen result-screen">
+  <div style="padding:13px 14px 8px;flex-shrink:0"><button class="up-bk" onclick="go('home')">←</button></div>
+  <div class="result-wrap">
+    <div class="result-card green" style="flex:1">
+      <span class="rc-mascot">🧑‍🌿</span>
+      <div class="rc-check">✅</div>
+      <div class="rc-txt">Laporan pembersihan<br>anda sudah kami terima.<br><br>Terima kasih!</div>
+    </div>
+  </div>
+  <div class="result-btns"><button class="btn-pu solid" onclick="finishClean()">kembali ke peta 🗺️</button></div>
+</div>
+
+<!-- CLEAN REJECTED -->
+<div id="s-clean-rejected" class="screen result-screen">
+  <div style="padding:13px 14px 8px;flex-shrink:0"><button class="up-bk" onclick="go('clean-cam')">←</button></div>
+  <div class="result-wrap">
+    <div class="result-card red" style="flex:1">
+      <span class="rc-mascot">😤</span>
+      <div class="rc-txt">Foto pembersihan kamu<br>belum memenuhi syarat,<br>silahkan coba lagi.</div>
+    </div>
+  </div>
+  <div class="result-btns"><button class="btn-g" onclick="go('clean-cam')">Ambil ulang</button></div>
+</div>
+
+<!-- PERINGKAT -->
+<div id="s-rank" class="screen">
+  <div class="rank-stars-bg" id="stars-bg"></div>
+  <div class="rank-hdr">
+    <button class="up-bk" onclick="go('home')">←</button>
+    <span style="font-size:26px">🥇</span>
+    <div class="rank-title">PERINGKAT</div>
+  </div>
+  <div class="rank-list">
+    <div class="lb-row top1"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#8D6E63,#5D4037);border-color:rgba(255,215,0,.4)">🧑‍🦱</div><div class="lb-medal">🥇</div></div><div class="lb-info"><div class="lb-name">SiPungut</div><div class="lb-sub">Lv. 200, Denpasar</div></div><div class="lb-num n1">#1</div></div>
+    <div class="lb-row top2"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#4CAF50,#2E7D32)">👩‍🦰</div><div class="lb-medal">🥈</div></div><div class="lb-info"><div class="lb-name">EcoLuna</div><div class="lb-sub">Lv. 189, Badung</div></div><div class="lb-num n2">#2</div></div>
+    <div class="lb-row top3"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#F44336,#B71C1C)">🧑‍🦳</div><div class="lb-medal">🥉</div></div><div class="lb-info"><div class="lb-name">CleanQueen</div><div class="lb-sub">Lv. 175, Gianyar</div></div><div class="lb-num n3">#3</div></div>
+    <div class="lb-row"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#FF5722,#BF360C)">😎</div></div><div class="lb-info"><div class="lb-name">TrashNoMore</div><div class="lb-sub">Lv. 155, Singaraja</div></div><div class="lb-num">#4</div></div>
+    <div class="lb-row"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#E91E63,#880E4F)">👩</div></div><div class="lb-info"><div class="lb-name">SapuCantik</div><div class="lb-sub">Lv. 150, Klungkung</div></div><div class="lb-num">#5</div></div>
+    <div class="lb-row"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#9C27B0,#4A148C)">🧑</div></div><div class="lb-info"><div class="lb-name">BaliClean</div><div class="lb-sub">Lv. 142, Tabanan</div></div><div class="lb-num">#6</div></div>
+    <div class="lb-row"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#00BCD4,#006064)">🧑</div></div><div class="lb-info"><div class="lb-name">GreenWarrior</div><div class="lb-sub">Lv. 130, Buleleng</div></div><div class="lb-num">#7</div></div>
+    <div class="lb-row"><div class="lb-av-w"><div class="lb-av" style="background:linear-gradient(135deg,#FF9800,#E65100)">👨</div></div><div class="lb-info"><div class="lb-name">AdiSampah</div><div class="lb-sub">Lv. 118, Karangasem</div></div><div class="lb-num">#8</div></div>
+  </div>
+  <div class="rank-me-bar">
+    <div class="rank-me-av">🧑</div>
+    <div class="rank-me-info"><div class="rank-me-nm">Ady Hunter</div><div class="rank-me-sub">Lv. 10, Denpasar</div></div>
+    <button class="share-btn" onclick="toast('📤 Link peringkat disalin!')">📤</button>
+  </div>
+</div>
+
+<!-- PROFIL -->
+<div id="s-profil" class="screen" style="background:var(--pu)">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go('home')">←</button>
+    <span style="font-family:'Fredoka One',cursive;font-size:28px;color:#fff;letter-spacing:1px">PROFIL</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 14px 28px" class="scroller">
+    <div style="background:#fff;border-radius:22px;padding:16px 18px 18px;margin-bottom:11px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:7px;background:#FFF8E0;border:2.5px solid #FFD700;border-radius:20px;padding:6px 14px">
+          <div style="width:26px;height:26px;background:linear-gradient(135deg,#FFD700,#FFA000);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px">🪙</div>
+          <span style="font-size:17px;font-weight:900;color:#B8860B" id="pf-coins">255</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:#EEF0FF;border:2.5px solid #7986CB;border-radius:20px;padding:6px 12px">
+          <span style="font-size:16px">⭐</span>
+          <div style="width:72px;height:9px;background:#DDD;border-radius:5px;overflow:hidden">
+            <div id="pf-exp-bar" style="width:31%;height:100%;background:linear-gradient(90deg,#5C6BC0,#9FA8DA);border-radius:5px;transition:width .8s"></div>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:#5C6BC0;white-space:nowrap">125/400</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#CCC;margin-bottom:10px">ID: 1234567890</div>
+      <div style="text-align:center;font-size:90px;line-height:1.1;margin:0 auto 8px">🧑‍🌿</div>
+      <div style="text-align:center"><span style="font-size:20px;font-weight:900;color:#1A1030" id="pf-nm-txt">Ady Hunter </span><span style="font-size:15px;cursor:pointer;color:#BBB" onclick="openEditProfil()">✏️</span></div>
+      <div style="text-align:center;font-size:13px;color:#AAA;margin-top:2px;margin-bottom:12px">Lv.10</div>
+      <div style="background:#27A648;border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:11px">
+        <div style="font-size:24px">📋</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:800;color:#fff;text-align:center;margin-bottom:4px">Daily Quest</div>
+          <div style="height:9px;background:rgba(255,255,255,.3);border-radius:5px;overflow:hidden"><div style="width:60%;height:100%;background:#fff;border-radius:5px"></div></div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7);text-align:center;margin-top:3px">3 / 5</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:13px 16px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;border:1.5px solid #F0EDF8">
+      <span style="font-size:14px;font-weight:700;color:#333">Total Laporan :</span>
+      <span style="font-size:14px;font-weight:900;color:#1A1030" id="pf-lap">56</span>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:13px 16px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;border:1.5px solid #F0EDF8">
+      <span style="font-size:14px;font-weight:700;color:#333">Total Pembersihan :</span>
+      <span style="font-size:14px;font-weight:900;color:#1A1030" id="pf-bersih">15</span>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:13px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;border:1.5px solid #F0EDF8">
+      <span style="font-size:14px;font-weight:700;color:#333">Regional :</span>
+      <span style="font-size:14px;font-weight:900;color:#1A1030">Denpasar</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div onclick="openStats()" style="background:linear-gradient(135deg,#EEF0FF,#E4E8FF);border:2px solid #C5CAE9;border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer">
+        <div style="font-size:26px;margin-bottom:3px">📊</div>
+        <div style="font-size:13px;font-weight:800;color:#3949AB">Statistik</div>
+      </div>
+      <div onclick="openStreak()" style="background:linear-gradient(135deg,#FFF3EE,#FFE8DE);border:2px solid #FFCCBC;border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer">
+        <div style="font-size:26px;margin-bottom:3px">🔥</div>
+        <div style="font-size:13px;font-weight:800;color:#E64A19">Streak <span id="pf-streak-num">7</span> hari</div>
+      </div>
+      <div onclick="openNotif('profil')" style="background:linear-gradient(135deg,#F3E5F5,#EDE0F5);border:2px solid #CE93D8;border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer;position:relative">
+        <div style="font-size:26px;margin-bottom:3px">🔔</div>
+        <div style="font-size:13px;font-weight:800;color:#7B1FA2">Notifikasi</div>
+        <div id="pf-notif-badge" style="position:absolute;top:8px;right:10px;background:#FF4444;color:#fff;border-radius:12px;padding:1px 7px;font-size:10px;font-weight:900">3</div>
+      </div>
+      <div onclick="openBadges()" style="background:linear-gradient(135deg,#FFFDE7,#FFF9C4);border:2px solid #FFF176;border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer">
+        <div style="font-size:26px;margin-bottom:3px">🏅</div>
+        <div style="font-size:13px;font-weight:800;color:#F57F17">Badge <span id="pf-badge-earned">4</span>/12</div>
+      </div>
+    </div>
+    <!-- Extra row: Edit profil + Share skor -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div onclick="openEditProfil()" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:2px solid #A5D6A7;border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer">
+        <div style="font-size:26px;margin-bottom:3px">✏️</div>
+        <div style="font-size:13px;font-weight:800;color:#2E7D32">Edit Profil</div>
+      </div>
+      <div onclick="openShare()" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border:2px solid #90CAF9;border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer">
+        <div style="font-size:26px;margin-bottom:3px">📤</div>
+        <div style="font-size:13px;font-weight:800;color:#1565C0">Bagikan Skor</div>
+      </div>
+    </div>
+    <div onclick="go('signin')" style="background:#fff;border:2px solid #FFE0E0;border-radius:14px;padding:14px;text-align:center;font-size:15px;font-weight:800;color:#CC2929;cursor:pointer">Keluar</div>
+  </div>
+</div>
+
+<!-- TOKO -->
+<div id="s-toko" class="screen" style="background:var(--pu)">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go('home')">←</button>
+    <span style="font-size:26px">🛒</span>
+    <span style="font-family:'Fredoka One',cursive;font-size:28px;color:#fff;letter-spacing:1px">TOKO</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 14px 28px" class="scroller">
+    <div style="background:#fff;border-radius:22px;padding:16px 20px 14px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:7px;background:#FFF8E0;border:2.5px solid #FFD700;border-radius:20px;padding:5px 14px;width:fit-content;margin-bottom:10px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#FFD700,#FFA000);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px">🪙</div>
+        <span style="font-size:16px;font-weight:900;color:#B8860B" id="tk-coins">255</span>
+      </div>
+      <div style="font-size:88px;text-align:center;line-height:1.1">🧑‍🌿</div>
+    </div>
+    <div style="background:#fff;border-radius:22px;padding:14px 16px">
+      <div style="display:flex;gap:8px;margin-bottom:13px">
+        <div class="tk-tab-btn on" id="tab-tops" onclick="tkTab(this,'tops')" style="flex:1;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer">👕</div>
+        <div class="tk-tab-btn" id="tab-pants" onclick="tkTab(this,'pants')" style="flex:1;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer">👖</div>
+        <div class="tk-tab-btn" id="tab-accs" onclick="tkTab(this,'accs')" style="flex:1;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer">🕶️</div>
+      </div>
+      <div id="tk-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px"></div>
+      <button onclick="buyItem()" style="width:100%;background:#27A648;color:#fff;border:none;padding:16px;border-radius:50px;font-family:'Fredoka One',cursive;font-size:22px;cursor:pointer;box-shadow:0 7px 20px rgba(39,166,72,.38);display:flex;align-items:center;justify-content:center;gap:8px">
+        Beli <div style="width:22px;height:22px;background:linear-gradient(135deg,#FFD700,#FFA000);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px">🪙</div><span id="buy-price">50</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FORUM -->
+<div id="s-forum" class="screen">
+  <div style="background:var(--pu);padding:14px 16px 0;display:flex;align-items:center;gap:11px;flex-shrink:0">
+    <button class="up-bk" onclick="go('home')">←</button>
+    <div style="width:42px;height:42px;background:#17B8E8;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(23,184,232,.55);flex-shrink:0">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+    </div>
+    <span style="font-family:'Fredoka One',cursive;font-size:30px;color:#fff;letter-spacing:1px">FORUM</span>
+  </div>
+  <div style="background:var(--pu);padding:12px 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0">
+    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#43A047,#1B5E20);display:flex;align-items:center;justify-content:center;font-size:24px;border:2.5px solid #4CAF50;flex-shrink:0">🧑</div>
+    <div style="flex:1"><div style="font-size:15px;font-weight:900;color:#fff">Ady Hunter</div><div style="font-size:12px;color:rgba(255,255,255,.42);margin-top:2px">Apa yang baru?</div></div>
+  </div>
+  <div id="fm-list" style="flex:1;overflow-y:auto;padding:2px 12px 12px" class="scroller"></div>
+  <div style="flex-shrink:0;background:#fff;border-top:1.5px solid #EEE8F8;padding:8px 0 20px;display:flex;align-items:center;justify-content:space-around;position:relative;z-index:10">
+    <button class="fm-nb-btn active" onclick="fmNav(this,'home')" data-tab="home"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></button>
+    <button class="fm-nb-btn" onclick="fmNav(this,'pesan')" data-tab="pesan"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>Pesan</span></button>
+    <div style="position:relative;top:-14px"><button onclick="toast('✍️ Buat postingan baru!')" style="width:56px;height:56px;background:linear-gradient(135deg,#5040C8,#3B2B9C);border-radius:50%;border:3.5px solid #fff;cursor:pointer;box-shadow:0 6px 22px rgba(59,43,156,.5);display:flex;align-items:center;justify-content:center;padding:0"><svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button></div>
+    <button class="fm-nb-btn" onclick="fmNav(this,'suka')" data-tab="suka"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>Suka</span></button>
+    <button class="fm-nb-btn" onclick="fmNav(this,'profil')" data-tab="profil"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Profil</span></button>
+  </div>
+</div>
+
+<!-- ████ AI SCAN ████ -->
+<div id="s-ai-scan" class="screen" style="background:#0D0A2A;display:flex;flex-direction:column;overflow:hidden">
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;padding:28px 24px 36px">
+  <div style="width:100%;max-width:340px;text-align:center">
+    <div style="font-family:'Fredoka One',cursive;font-size:26px;color:#fff;margin-bottom:4px;letter-spacing:1px">🤖 AI Scan Sampah</div>
+    <div id="ai-subtitle" style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px">Memindai gambar...</div>
+    <!-- Scan frame -->
+    <div style="position:relative;width:220px;height:220px;margin:0 auto 24px">
+      <svg width="220" height="220" viewBox="0 0 220 220" style="position:absolute;inset:0">
+        <circle cx="110" cy="110" r="100" fill="none" stroke="rgba(87,204,153,.18)" stroke-width="2"/>
+        <circle cx="110" cy="110" r="100" fill="none" stroke="#57CC99" stroke-width="3" stroke-dasharray="628" stroke-dashoffset="0" stroke-linecap="round" style="transform-origin:110px 110px;animation:aiSpin 2s linear infinite"/>
+        <circle cx="110" cy="110" r="76" fill="none" stroke="rgba(87,204,153,.12)" stroke-width="1.5"/>
+        <circle cx="110" cy="110" r="76" fill="none" stroke="#38A3A5" stroke-width="2.5" stroke-dasharray="477" stroke-dashoffset="0" stroke-linecap="round" style="transform-origin:110px 110px;animation:aiSpinR 3s linear infinite"/>
+        <!-- corners -->
+        <line x1="10" y1="10" x2="38" y2="10" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <line x1="10" y1="10" x2="10" y2="38" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <line x1="210" y1="10" x2="182" y2="10" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <line x1="210" y1="10" x2="210" y2="38" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <line x1="10" y1="210" x2="38" y2="210" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <line x1="10" y1="210" x2="10" y2="182" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <line x1="210" y1="210" x2="182" y2="210" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <line x1="210" y1="210" x2="210" y2="182" stroke="#57CC99" stroke-width="3" stroke-linecap="round"/>
+        <!-- scan line -->
+        <rect id="ai-scanline" x="10" y="110" width="200" height="2" fill="url(#scanGrad)" style="animation:scanMove 1.8s ease-in-out infinite"/>
+        <defs>
+          <linearGradient id="scanGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="transparent"/><stop offset="50%" stop-color="#57CC99"/><stop offset="100%" stop-color="transparent"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <!-- center icon -->
+      <div id="ai-center-ico" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px">🗑️</div>
+      <!-- result icon overlay -->
+      <div id="ai-result-ico" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+        <div style="font-size:46px" id="ai-item-ico">♻️</div>
+        <div style="background:rgba(87,204,153,.22);border:1.5px solid #57CC99;border-radius:10px;padding:4px 12px;font-size:13px;font-weight:800;color:#57CC99" id="ai-item-label">Botol Plastik</div>
+      </div>
+    </div>
+    <!-- Status -->
+    <div id="ai-status" style="font-family:'Fredoka One',cursive;font-size:22px;color:#fff;margin-bottom:6px">Menganalisis...</div>
+    <div id="ai-substatus" style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:20px">AI sedang memproses gambar kamu</div>
+    <!-- Progress bar -->
+    <div style="height:7px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-bottom:28px">
+      <div id="ai-prog" style="height:100%;width:0%;background:linear-gradient(90deg,#57CC99,#38A3A5);border-radius:4px;transition:width .08s linear"></div>
+    </div>
+    <!-- Result card — hidden until done -->
+    <div id="ai-cards" style="display:none;width:100%">
+      <div style="background:rgba(255,255,255,.07);border:1.5px solid rgba(87,204,153,.35);border-radius:16px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.6)">Jenis Sampah</span>
+          <span style="font-size:13px;font-weight:900;color:#57CC99" id="ai-type-val">Plastik</span>
+        </div>
+        <!-- Attribute bars -->
+        <div id="ai-attr-bars" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.6)">Tingkat Bahaya</span>
+          <span style="font-size:13px;font-weight:900" id="ai-danger-val">🟡 Sedang</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.6)">Akurasi AI</span>
+          <span style="font-size:20px;font-weight:900;color:#BBFF4B" id="ai-acc-val">94%</span>
+        </div>
+      </div>
+      <!-- Bonus coin -->
+      <div style="background:rgba(187,255,75,.12);border:1.5px solid rgba(187,255,75,.35);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">🪙</span>
+        <div>
+          <div id="ai-bonus-txt" style="font-size:14px;font-weight:900;color:#BBFF4B">+15 koin bonus!</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5)">Bonus deteksi AI otomatis masuk dompet</div>
+        </div>
+      </div>
+      <!-- Tips -->
+      <div style="background:rgba(87,204,153,.1);border:1.5px solid rgba(87,204,153,.25);border-radius:12px;padding:10px 14px;margin-bottom:20px;text-align:left">
+        <div style="font-size:11px;font-weight:800;color:#57CC99;margin-bottom:4px">💡 TIPS DAUR ULANG</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.7);line-height:1.5" id="ai-tips-txt">-</div>
+      </div>
+      <button onclick="aiProceed()" style="width:100%;padding:15px;background:linear-gradient(135deg,#57CC99,#38A3A5);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:20px;color:#fff;cursor:pointer;box-shadow:0 6px 22px rgba(87,204,153,.4)">Lanjutkan ✓</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- ████ STREAK ████ -->
+<div id="s-streak" class="screen" style="background:var(--pu)">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go('home')">←</button>
+    <span style="font-family:'Fredoka One',cursive;font-size:28px;color:#fff">🔥 STREAK HARIAN</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 14px 28px" class="scroller">
+    <!-- Hero -->
+    <div style="background:linear-gradient(135deg,#FF8C00,#FF5500);border-radius:22px;padding:20px;margin-bottom:12px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;font-size:90px;opacity:.12">🔥</div>
+      <div style="font-size:56px;font-weight:900;color:#fff;font-family:'Fredoka One',cursive;line-height:1" id="streak-count">7</div>
+      <div style="font-size:16px;font-weight:800;color:rgba(255,255,255,.85);margin-top:2px">Hari Berturut-turut!</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:4px">Bonus koin aktif: <span style="color:#FFD700;font-weight:900">2×</span></div>
+      <!-- Milestones -->
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:14px" id="streak-milestones"></div>
+    </div>
+    <!-- Weekly (Sen–Min) -->
+    <div style="background:#fff;border-radius:20px;padding:16px;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:900;color:#1A1030;margin-bottom:12px">Minggu Ini (Sen – Min)</div>
+      <div id="streak-weekly" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px"></div>
+    </div>
+    <!-- Monthly calendar -->
+    <div style="background:#fff;border-radius:20px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <button onclick="streakPrevMonth()" style="background:#F0EDF8;border:none;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer">‹</button>
+        <div style="font-size:15px;font-weight:900;color:#1A1030" id="cal-month-label">Maret 2026</div>
+        <button onclick="streakNextMonth()" style="background:#F0EDF8;border:none;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#999">Min</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#999">Sen</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#999">Sel</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#999">Rab</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#999">Kam</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#999">Jum</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#999">Sab</div>
+      </div>
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"></div>
+    </div>
+    <!-- Check-in button -->
+    <button id="checkin-btn" onclick="doCheckIn()" style="width:100%;padding:16px;background:linear-gradient(135deg,#FF8C00,#FF5500);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:20px;color:#fff;cursor:pointer;box-shadow:0 6px 22px rgba(255,140,0,.4);margin-bottom:12px">
+      🔥 Check-in Hari Ini! +20🪙
+    </button>
+    <!-- Weekly bars -->
+    <div style="background:#fff;border-radius:18px;padding:14px 16px">
+      <div style="font-size:14px;font-weight:900;color:#1A1030;margin-bottom:12px">Aktivitas Minggu Ini</div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;height:72px;gap:4px" id="streak-weekly-bars"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px">
+        <div style="font-size:10px;color:#999;font-weight:700">Min</div><div style="font-size:10px;color:#999;font-weight:700">Sen</div><div style="font-size:10px;color:#999;font-weight:700">Sel</div><div style="font-size:10px;color:#999;font-weight:700">Rab</div><div style="font-size:10px;color:#999;font-weight:700">Kam</div><div style="font-size:10px;color:#999;font-weight:700">Jum</div><div style="font-size:10px;color:#999;font-weight:700">Sab</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ████ STATISTIK ████ -->
+<div id="s-stats" class="screen" style="background:var(--pu)">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go('profil')">←</button>
+    <span style="font-family:'Fredoka One',cursive;font-size:28px;color:#fff">📊 STATISTIK</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 14px 28px" class="scroller">
+    <!-- 4 summary cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:linear-gradient(135deg,#27A648,#1B7A35);border-radius:18px;padding:16px;color:#fff;text-align:center">
+        <div style="font-size:28px;margin-bottom:4px">📋</div>
+        <div id="st-lap" style="font-family:'Fredoka One',cursive;font-size:30px">56</div>
+        <div style="font-size:11px;opacity:.8">Total Laporan</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#1565C0,#0D47A1);border-radius:18px;padding:16px;color:#fff;text-align:center">
+        <div style="font-size:28px;margin-bottom:4px">🧹</div>
+        <div id="st-bersih" style="font-family:'Fredoka One',cursive;font-size:30px">15</div>
+        <div style="font-size:11px;opacity:.8">Dibersihkan</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#FF6B35,#E53935);border-radius:18px;padding:16px;color:#fff;text-align:center">
+        <div style="font-size:28px;margin-bottom:4px">🔥</div>
+        <div id="st-streak" style="font-family:'Fredoka One',cursive;font-size:30px">7</div>
+        <div style="font-size:11px;opacity:.8">Streak Hari</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#7B1FA2,#4A148C);border-radius:18px;padding:16px;color:#fff;text-align:center">
+        <div style="font-size:28px;margin-bottom:4px">🌿</div>
+        <div id="st-co2" style="font-family:'Fredoka One',cursive;font-size:30px">14.7</div>
+        <div style="font-size:11px;opacity:.8">kg CO₂ diselamatkan</div>
+      </div>
+    </div>
+    <!-- Bar chart 7 hari -->
+    <div style="background:#fff;border-radius:20px;padding:16px;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:900;color:#1A1030;margin-bottom:4px">Laporan 7 Hari Terakhir</div>
+      <div style="font-size:11px;color:#AAA;margin-bottom:16px">Senin – Minggu</div>
+      <div id="st-barchart" style="display:flex;align-items:flex-end;gap:6px;height:110px;padding:0 4px"></div>
+      <div id="st-barlabels" style="display:flex;gap:6px;margin-top:6px;padding:0 4px"></div>
+    </div>
+    <!-- Donut chart -->
+    <div style="background:#fff;border-radius:20px;padding:16px;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:900;color:#1A1030;margin-bottom:14px">Jenis Sampah</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <svg id="st-donut" width="110" height="110" viewBox="0 0 110 110"></svg>
+        <div id="st-legend" style="flex:1;display:flex;flex-direction:column;gap:7px"></div>
+      </div>
+    </div>
+    <!-- Impact -->
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:20px;padding:16px;border:1.5px solid #A5D6A7">
+      <div style="font-size:15px;font-weight:900;color:#1B5E20;margin-bottom:12px">🌍 Dampak Nyata</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <span style="font-size:32px">🌳</span>
+        <div><div style="font-size:18px;font-weight:900;color:#1B5E20">2.4 pohon</div><div style="font-size:12px;color:#388E3C">setara dengan kontribusimu</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:32px">🐠</span>
+        <div><div style="font-size:18px;font-weight:900;color:#1B5E20">~56 ikan</div><div style="font-size:12px;color:#388E3C">diselamatkan dari plastik laut</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ████ NOTIFIKASI ████ -->
+<div id="s-notif" class="screen" style="background:var(--pu)">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go(G.notifFrom||'home')">←</button>
+    <span style="font-family:'Fredoka One',cursive;font-size:28px;color:#fff">🔔 NOTIFIKASI</span>
+    <div id="notif-badge-hdr" style="margin-left:auto;background:#FF4444;color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:800">3 baru</div>
+    <button onclick="clearAllNotifs()" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;padding:5px 10px;font-size:11px;font-weight:700;color:#fff;cursor:pointer">Hapus semua</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:8px 14px 24px" class="scroller">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="notif-tab active" onclick="filterNotifs(this,'all')">Semua</button>
+      <button class="notif-tab" onclick="filterNotifs(this,'social')">Sosial</button>
+      <button class="notif-tab" onclick="filterNotifs(this,'reward')">Reward</button>
+      <button class="notif-tab" onclick="filterNotifs(this,'event')">Event</button>
+    </div>
+    <div id="notif-list"></div>
+  </div>
+</div>
+
+<!-- ████ KOMENTAR ████ -->
+<div id="s-comments" class="screen" style="background:#F8F6FF;display:flex;flex-direction:column">
+  <div style="background:#fff;padding:14px 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:1.5px solid #F0ECF8">
+    <button onclick="go('forum')" style="width:36px;height:36px;border-radius:50%;background:#F0EDF8;border:none;color:#3B2B9C;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">←</button>
+    <span style="font-size:17px;font-weight:900;color:#1A1030">Komentar</span>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;font-weight:700;color:#999" id="cmt-count-hdr">61 komentar</span>
+  </div>
+  <!-- Post preview -->
+  <div style="background:#fff;padding:12px 16px;flex-shrink:0;border-bottom:1.5px solid #F0ECF8">
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0" id="cmt-post-av" style="background:linear-gradient(135deg,#8D6E63,#5D4037)">🧑‍🦱</div>
+      <div>
+        <div style="font-size:13px;font-weight:900;color:#1A1030" id="cmt-post-nm">SiPungut</div>
+        <div style="font-size:12px;color:#555;margin-top:2px;line-height:1.4" id="cmt-post-txt">Denpasar hari ini kotor juga yaa....</div>
+      </div>
+    </div>
+  </div>
+  <!-- Comment list -->
+  <div style="flex:1;overflow-y:auto;padding:10px 14px" class="scroller" id="cmt-list"></div>
+  <!-- Input bar -->
+  <div style="background:#fff;padding:10px 14px 22px;flex-shrink:0;display:flex;gap:10px;align-items:center;border-top:1.5px solid #F0ECF8">
+    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#43A047,#1B5E20);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🧑</div>
+    <div id="cmt-input" contenteditable="true" style="flex:1;background:#F5F3FF;border:1.5px solid #E0DCF8;border-radius:22px;padding:10px 16px;font-size:14px;color:#333;min-height:40px;max-height:80px;overflow-y:auto;outline:none;font-family:'Nunito',sans-serif"></div>
+    <button onclick="submitComment()" style="width:40px;height:40px;background:linear-gradient(135deg,#3B2B9C,#5040C8);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 4px 14px rgba(59,43,156,.4)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ████ BADGE COLLECTION ████ -->
+<div id="s-badges" class="screen">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go('profil')">←</button>
+    <span style="font-size:24px">🏅</span>
+    <span style="font-family:'Fredoka One',cursive;font-size:26px;color:#fff;letter-spacing:1px">BADGE COLLECTION</span>
+  </div>
+  <!-- Progress bar -->
+  <div style="background:var(--pu);padding:0 16px 14px;flex-shrink:0">
+    <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:24px">🏆</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;font-weight:800;color:#fff">Badge Diraih</span>
+          <span style="font-size:12px;font-weight:900;color:#FFD700" id="badge-count-txt">4 / 12</span>
+        </div>
+        <div style="height:7px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden">
+          <div id="badge-prog-bar" style="height:100%;background:linear-gradient(90deg,#FFD700,#FF8C00);border-radius:4px;transition:width .8s ease;width:33%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 14px 28px" class="scroller">
+    <!-- Category: Laporan -->
+    <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">📋 Laporan Sampah</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px" id="badge-grid-laporan"></div>
+    <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">🔥 Streak Harian</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px" id="badge-grid-streak"></div>
+    <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">🌿 Lingkungan</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px" id="badge-grid-lingkungan"></div>
+    <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">🎉 Spesial</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px" id="badge-grid-spesial"></div>
+  </div>
+</div>
+
+<!-- ████ DAILY QUEST INTERAKTIF ████ -->
+<div id="s-quest" class="screen" style="background:var(--pu)">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go('home')">←</button>
+    <span style="font-size:24px">🎯</span>
+    <span style="font-family:'Fredoka One',cursive;font-size:26px;color:#fff;letter-spacing:1px">DAILY QUEST</span>
+    <div style="margin-left:auto;background:rgba(255,255,255,.15);border-radius:12px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff" id="quest-reset-lbl">Reset 22:14:00</div>
+  </div>
+  <!-- XP bar -->
+  <div style="background:var(--pu);padding:0 16px 14px;flex-shrink:0">
+    <div style="background:rgba(255,255,255,.1);border-radius:14px;padding:13px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:800;color:#fff">Progress Harian</span>
+        <span style="font-size:13px;font-weight:900;color:#FFD700" id="quest-xp-earned">0 / 180 XP</span>
+      </div>
+      <div style="height:10px;background:rgba(255,255,255,.15);border-radius:5px;overflow:hidden">
+        <div id="quest-xp-bar" style="height:100%;background:linear-gradient(90deg,#FFD700,#FF8C00);border-radius:5px;width:0%;transition:width .6s ease"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px">
+        <span style="font-size:10px;color:rgba(255,255,255,.5)">0%</span>
+        <span style="font-size:10px;font-weight:800;color:#FFD700" id="quest-chest-hint">Selesaikan semua → Chest 🎁 +50🪙</span>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 14px 28px" class="scroller" id="quest-list"></div>
+</div>
+
+<!-- ████ EDIT PROFIL ████ -->
+<div id="s-edit-profil" class="screen">
+  <div style="background:var(--pu);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="up-bk" onclick="go('profil')">←</button>
+    <span style="font-family:'Fredoka One',cursive;font-size:26px;color:#fff">✏️ EDIT PROFIL</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:14px 16px 28px" class="scroller">
+    <!-- Avatar preview -->
+    <div style="background:#fff;border-radius:20px;padding:20px;margin-bottom:12px;text-align:center">
+      <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#3B2B9C,#5040C8);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 12px;border:4px solid #fff;box-shadow:0 8px 24px rgba(59,43,156,.3)" id="ep-preview-av">🧑‍🌿</div>
+      <div style="font-size:15px;font-weight:900;color:#1A1030" id="ep-preview-nm">Ady Hunter</div>
+      <div style="font-size:12px;color:#AAA;margin-top:2px">Lv.10 · Denpasar</div>
+    </div>
+    <!-- Name input -->
+    <div style="background:#fff;border-radius:18px;padding:16px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:800;color:#1A1030;margin-bottom:8px">Nama Tampilan</div>
+      <input id="ep-name-input" type="text" value="Ady Hunter" maxlength="20"
+        style="width:100%;border:2px solid #E0DCF8;border-radius:12px;padding:11px 14px;font-size:15px;font-family:'Nunito',sans-serif;font-weight:700;color:#333;outline:none;transition:border-color .2s"
+        oninput="document.getElementById('ep-preview-nm').textContent=this.value||'—'"
+        onfocus="this.style.borderColor='#3B2B9C'" onblur="this.style.borderColor='#E0DCF8'">
+      <div style="font-size:11px;color:#BBB;margin-top:6px;text-align:right" id="ep-char-count">12 / 20 karakter</div>
+    </div>
+    <!-- Avatar picker -->
+    <div style="background:#fff;border-radius:18px;padding:16px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:800;color:#1A1030;margin-bottom:12px">Pilih Avatar</div>
+      <div class="avatar-grid" id="ep-avatar-grid"></div>
+    </div>
+    <!-- Bio -->
+    <div style="background:#fff;border-radius:18px;padding:16px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:800;color:#1A1030;margin-bottom:8px">Bio Singkat</div>
+      <textarea id="ep-bio-input" maxlength="80" placeholder="Ceritakan sedikit tentang kamu..."
+        style="width:100%;border:2px solid #E0DCF8;border-radius:12px;padding:11px 14px;font-size:13px;font-family:'Nunito',sans-serif;color:#333;outline:none;resize:none;height:72px;transition:border-color .2s"
+        onfocus="this.style.borderColor='#3B2B9C'" onblur="this.style.borderColor='#E0DCF8'">Hunter lingkungan Bali 🌿</textarea>
+    </div>
+    <button onclick="saveProfile()" style="width:100%;padding:16px;background:linear-gradient(135deg,var(--pu3),var(--pu2));border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:21px;color:#fff;cursor:pointer;box-shadow:0 7px 20px rgba(59,43,156,.4);letter-spacing:.5px">Simpan Perubahan ✓</button>
+  </div>
+</div>
+
+<!-- ████ SHARE KARTU SKOR ████ -->
+<div id="s-share" class="screen">
+  <div style="padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button onclick="go('profil')" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">←</button>
+    <span style="font-family:'Fredoka One',cursive;font-size:26px;color:#fff;letter-spacing:1px">📤 BAGIKAN SKOR</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 0 28px" class="scroller">
+    <!-- Share card preview -->
+    <div class="share-card" id="share-card-el">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3B2B9C,#5040C8);border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:30px" id="sc-av">🧑‍🌿</div>
+        <div>
+          <div style="font-family:'Fredoka One',cursive;font-size:20px;color:#fff;letter-spacing:.5px" id="sc-nm">Ady Hunter</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.55)">🗑️ Trash Hunt Bali · Lv.10</div>
+        </div>
+        <div style="margin-left:auto;text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px">Peringkat</div>
+          <div style="font-family:'Fredoka One',cursive;font-size:28px;color:#FFD700">#9</div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,.1);margin-bottom:14px"></div>
+      <div style="font-family:'Fredoka One',cursive;font-size:13px;color:rgba(255,255,255,.4);letter-spacing:1px;text-align:center;margin-bottom:10px">STATISTIK SAYA</div>
+      <div class="share-stat-row">
+        <div class="share-stat-box"><div class="share-stat-val" id="sc-lap">56</div><div class="share-stat-lbl">Laporan</div></div>
+        <div class="share-stat-box"><div class="share-stat-val" id="sc-bersih">15</div><div class="share-stat-lbl">Bersihan</div></div>
+        <div class="share-stat-box"><div class="share-stat-val" id="sc-streak">🔥 7</div><div class="share-stat-lbl">Streak Hari</div></div>
+        <div class="share-stat-box"><div class="share-stat-val" id="sc-coins">255</div><div class="share-stat-lbl">🪙 Koin</div></div>
+      </div>
+      <div style="margin-top:14px;background:rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">Sudah menyelamatkan setara</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#69F0AE" id="sc-co2">14.6 kg CO₂</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4)">dari atmosfer Bali 🌍</div>
+      </div>
+      <!-- Branding -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px">
+        <span style="font-size:14px">🗑️</span>
+        <span style="font-family:'Fredoka One',cursive;font-size:13px;color:rgba(255,255,255,.3);letter-spacing:1px">TRASH HUNT BALI</span>
+      </div>
+    </div>
+    <!-- Share buttons -->
+    <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
+      <button onclick="doShare('wa')" style="width:100%;padding:15px;background:#25D366;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:19px;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(37,211,102,.35);display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.118.553 4.107 1.522 5.836L0 24l6.336-1.508A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.856 0-3.587-.5-5.076-1.372l-.362-.213-3.762.896.957-3.659-.236-.374A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Share ke WhatsApp
+      </button>
+      <button onclick="doShare('copy')" style="width:100%;padding:15px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);border-radius:50px;font-family:'Fredoka One',cursive;font-size:19px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">
+        📋 Salin Teks Skor
+      </button>
+      <button onclick="doShare('ig')" style="width:100%;padding:15px;background:linear-gradient(135deg,#E1306C,#833AB4);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:19px;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(225,48,108,.3);display:flex;align-items:center;justify-content:center;gap:10px">
+        📸 Simpan sebagai Foto
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- IN-APP NOTIFICATION POPUP -->
+<div class="inapp-popup" id="inapp-popup">
+  <div class="inapp-ico" id="inapp-ico" style="background:#FFF8E0">🔔</div>
+  <div class="inapp-body">
+    <div class="inapp-title" id="inapp-title">Notifikasi baru</div>
+    <div class="inapp-sub" id="inapp-sub">Ketuk untuk lihat</div>
+  </div>
+  <button class="inapp-close" onclick="hideInAppPopup()">×</button>
+</div>
+
+<!-- REWARD MODAL -->
+<div class="overlay" id="rw-overlay">
+  <div class="rw-sheet">
+    <div class="rw-glow"></div>
+    <div id="conf-wrap"></div>
+    <div class="rw-handle"></div>
+    <span class="rw-ico-big" id="rw-ico">🏆</span>
+    <div class="rw-title" id="rw-title">DIKUMPULKAN!</div>
+    <div class="rw-sub" id="rw-sub">Kategori • Area</div>
+    <div class="rw-coins-row">
+      <div class="rw-coin-ball">🪙</div>
+      <div><div class="rw-coin-amt" id="rw-amt">+25</div><div class="rw-coin-lbl">KOIN DIDAPAT</div></div>
+    </div>
+    <div class="rw-4grid">
+      <div class="rw-mini"><span class="m-ico">⭐</span><div class="m-val" id="rw-xp">+80</div><div class="m-lbl">XP</div></div>
+      <div class="rw-mini"><span class="m-ico">🗺️</span><div class="m-val" id="rw-area">Denpasar</div><div class="m-lbl">Area</div></div>
+      <div class="rw-mini"><span class="m-ico">🌍</span><div class="m-val" id="rw-co2">0.3kg</div><div class="m-lbl">CO₂ Hemat</div></div>
+      <div class="rw-mini"><span class="m-ico">🔥</span><div class="m-val" id="rw-combo">x1</div><div class="m-lbl">Combo</div></div>
+    </div>
+    <div class="rw-badge" id="rw-badge">
+      <span style="font-size:32px" id="rw-badge-ico">🏅</span>
+      <div><div style="font-family:'Fredoka One',cursive;font-size:13px;color:#FFD700" id="rw-badge-nm">BADGE!</div><div style="font-size:11px;color:rgba(255,255,255,.46)" id="rw-badge-d">Kamu mendapat badge</div></div>
+    </div>
+    <button class="btn-g" onclick="claimRwd()">KLAIM REWARD 🎁</button>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+</div></div>
+
+
+</body>
+</html>
